@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Category;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        dd("inja");
+       $categories = Category::query()->paginate(10);
+       return view('admin.pages.category.index',compact('categories'));
     }
 
     /**
@@ -20,7 +22,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.pages.category.create');
     }
 
     /**
@@ -28,7 +30,11 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Category::query()
+            ->create([
+                'title'=>$request->title
+            ]);
+        return redirect()->route('admin.category.index');
     }
 
     /**
@@ -44,7 +50,8 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $category = Category::query()->find($id);
+        return view('admin.pages.category.edit',compact('category'));
     }
 
     /**
@@ -52,7 +59,9 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        Category::query()->find($id)
+            ->update(['title'=>$request->title]);
+        return redirect()->route('admin.category.index');
     }
 
     /**
@@ -60,6 +69,7 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Category::query()->find($id)->delete();
+        return redirect()->back();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Tag;
 use Illuminate\Http\Request;
 
 class TagController extends Controller
@@ -12,7 +13,8 @@ class TagController extends Controller
      */
     public function index()
     {
-        //
+        $tags = Tag::query()->paginate(10);
+        return view('admin.pages.tag.index', compact('tags'));
     }
 
     /**
@@ -20,7 +22,7 @@ class TagController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.pages.tag.create');
     }
 
     /**
@@ -28,7 +30,10 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Tag::query()->create([
+            'title' => $request->title
+        ]);
+        return redirect()->route('admin.tag.index');
     }
 
     /**
@@ -44,7 +49,8 @@ class TagController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $tag = Tag::query()->find($id);
+        return view('admin.pages.tag.edit', compact('tag'));
     }
 
     /**
@@ -52,7 +58,9 @@ class TagController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        Tag::query()->find($id)
+            ->update(['title'=>$request->title]);
+        return redirect()->route('admin.tag.index');
     }
 
     /**
@@ -60,6 +68,7 @@ class TagController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Tag::query()->find($id)->delete();
+        return redirect()->back();
     }
 }
