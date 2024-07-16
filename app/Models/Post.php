@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Post extends Model
 {
+    protected $fillable = ['title','description','image','category_id'];
     use HasFactory;
     public function category(): BelongsTo
     {
@@ -18,7 +19,7 @@ class Post extends Model
     }
     public function tags(): BelongsToMany
     {
-        return $this->BelongstoMany(Tag::class);
+        return $this->BelongstoMany(Tag::class,'post_tags');
     }
     public function user(): BelongsTo
     {
