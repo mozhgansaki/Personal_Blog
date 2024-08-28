@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\PostTag;
 use App\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -25,6 +26,7 @@ class PostController extends Controller
      */
     public function create()
     {
+        Gate::authorize('create-post');
         $categories = Category::query()->get();
         $tags = Tag::query()->get();
         return view('admin.pages.post.create', compact('categories', 'tags'));
@@ -35,16 +37,17 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-       if($request->has('image')){
-           $file_name =$request->image. '_'. now();
-           $request->file('image')->storeAs('images',$file_name,'public');
-       }
+
+        if ($request->has('image')) {
+            $file_name = $request->image . '_' . now();
+            $request->file('image')->storeAs('images', $file_name, 'public');
+        }
         $tags = $request->tag;
         $post = auth()->user()->posts()->create(
             [
                 'title' => $request->title,
                 'description' => $request->description,
-                'image' =>$file_name ?? null,
+                'image' => $file_name ?? null,
                 'category_id' => $request->category
             ]
         );
@@ -65,9 +68,9 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Post $post)
     {
-        $post = Post::query()->find($id);
+        Gate::authorize('update-post', $post);
         $categories = Category::query()->get();
         $tags = Tag::query()->get();
         return view('admin.pages.post.edit', compact('post', 'categories', 'tags'));
@@ -78,9 +81,9 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        if($request->has('image')){
-            $file_name =$request->image. '_'. now();
-            $request->file('image')->storeAs('images',$file_name,'public');
+        if ($request->has('image')) {
+            $file_name = $request->image . '_' . now();
+            $request->file('image')->storeAs('images', $file_name, 'public');
         }
         $post->update(
             ['title' => $request->title,
@@ -94,7 +97,8 @@ class PostController extends Controller
             array_push($newTags, $tag);
         }
         $post->tags()->sync($newTags);
-        return redirect()->route('admin.post.index');
+        return to_route('admin.post.index');
+//        return redirect()->route('admin.post.index');
     }
 
     /**
@@ -102,6 +106,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        Gate::authorize('delete-post', $post);
         $post->tags()->detach();
         $post->delete();
         return redirect()->back();
