@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class TagController extends Controller
 {
@@ -13,7 +14,7 @@ class TagController extends Controller
      */
     public function index()
     {
-        $tags = Tag::query()->paginate(1);
+        $tags = Tag::query()->paginate(10);
 //        return $tags;
         return view('admin.pages.tag.index', compact('tags'));
     }
@@ -23,6 +24,7 @@ class TagController extends Controller
      */
     public function create()
     {
+        Gate::authorize('create-tag');
         return view('admin.pages.tag.create');
     }
 
@@ -48,9 +50,9 @@ class TagController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Tag $tag)
     {
-        $tag = Tag::query()->find($id);
+       Gate::authorize('update-tag');
         return view('admin.pages.tag.edit', compact('tag'));
     }
 
@@ -67,9 +69,10 @@ class TagController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Tag $tag)
     {
-        Tag::query()->find($id)->delete();
+       Gate::authorize('delete-tag');
+        $tag->delete();
         return redirect()->back();
     }
 }

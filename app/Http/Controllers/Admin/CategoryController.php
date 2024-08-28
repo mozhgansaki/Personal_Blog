@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Category;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class CategoryController extends Controller
 {
@@ -22,6 +23,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
+        Gate::authorize('create-category');
         return view('admin.pages.category.create');
     }
 
@@ -48,28 +50,29 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Category $category)
     {
-        $category = Category::query()->find($id);
+        Gate::authorize('update-category');
         return view('admin.pages.category.edit',compact('category'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Category $category)
     {
-        Category::query()->find($id)
-            ->update(['title'=>$request->title]);
+
+        $category->update(['title'=>$request->title]);
         return redirect()->route('admin.category.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Category $category)
     {
-        Category::query()->find($id)->delete();
+        Gate::authorize('delete-category');
+        $category->delete();
         return redirect()->back();
     }
 }
